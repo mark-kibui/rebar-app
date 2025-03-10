@@ -4,6 +4,10 @@ import plotly.express as px
 import time
 import ifcopenshell
 import numpy as np
+from io import BytesIO
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Font
 
 # Function to process IFC file
 def process_ifc(file):
@@ -23,6 +27,30 @@ def process_ifc(file):
         })
     
     return pd.DataFrame(rebar_data)
+
+# Function to export summary to formatted Excel
+def export_to_excel(df):
+    output = BytesIO()
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Summary"
+    
+    for r_idx, row in enumerate(dataframe_to_rows(df, index=True, header=True), 1):
+        for c_idx, value in enumerate(row, 1):
+            ws.cell(row=r_idx, column=c_idx, value=value)
+    
+    # Format header row
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+    
+    # Auto-adjust column width
+    for col in ws.columns:
+        max_length = max(len(str(cell.value)) for cell in col if cell.value)
+        ws.column_dimensions[col[0].column_letter].width = max_length + 2
+    
+    wb.save(output)
+    output.seek(0)
+    return output
 
 # Streamlit App
 st.title('Rebar Data Summary & Visualization')
@@ -67,12 +95,13 @@ if uploaded_file:
     st.subheader('Summary Table')
     st.write(summary)
     
-    # Button to export summary to Excel
+    # Button to export summary to formatted Excel
+    excel_data = export_to_excel(summary)
     st.download_button(
         label="Download Summary as Excel",
-        data=summary.to_csv(index=True).encode('utf-8'),
-        file_name="summary.csv",
-        mime="text/csv"
+        data=excel_data,
+        file_name="summary.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     
     # Create separate bar plots
@@ -80,8 +109,8 @@ if uploaded_file:
         summary, 
         x=summary.index, 
         y='Total_Length_m', 
-        title='Total Length by Bar Diameter', 
-        labels={'Total_Length_m': 'Total Length (m)', 'Nominal Diameter(mm)': 'Bar Diameter (mm)'}
+        title='Total Length by Nominal Diameter', 
+        labels={'Total_Length_m': 'Total Length (m)', 'Nominal Diameter(mm)': 'Nominal Diameter (mm)'}
     )
     st.plotly_chart(fig_length)
     
@@ -89,8 +118,8 @@ if uploaded_file:
         summary, 
         x=summary.index, 
         y='Total_Weight_kg', 
-        title='Total Weight by Bar Diameter', 
-        labels={'Total_Weight_kg': 'Total Weight (kg)', 'Nominal Diameter(mm)': 'Bar Diameter (mm)'}
+        title='Total Weight by Nominal Diameter', 
+        labels={'Total_Weight_kg': 'Total Weight (kg)', 'Nominal Diameter(mm)': 'Nominal Diameter (mm)'}
     )
     st.plotly_chart(fig_weight)
     
