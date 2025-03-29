@@ -1,6 +1,6 @@
 # Rebar Data Processing & Visualization App
 
-This Streamlit-based application processes IFC files containing rebar data, extracts relevant details, and visualizes key metrics such as total rebar length and weight distribution.
+This Streamlit app provides rapid cost estimation for reinforced concrete projects. It parses IFC files, extracts rebar quantity data (length and weight), and visualizes key metrics for quick analysis.
 
 ## Features
 - **IFC File Upload**: Upload an IFC file to extract rebar details.
@@ -8,6 +8,19 @@ This Streamlit-based application processes IFC files containing rebar data, extr
 - **Summary Table**: Groups data by nominal diameter and provides total length, total weight, and count.
 - **Interactive Plots**: Visualizes total length and total weight by nominal diameter using Plotly.
 - **Export Option**: Download the summary table as an Excel file.
+  
+Below is image illustration of the app
+1. This snapshot shows the file being loaded and summarizing the quantities of rebar. The summary can be downloaded in a properly formatted excel file.
+
+![Laoding IFC File](Assets/loadfile.png)
+
+3. This snapshot shows the charts displaying the total lenght needed for each reinforcement type (diameter) for the project
+
+![Quantities](Assets/showRebarQuantity.png)
+
+4. This snapshot shows the raw data extracted from the IFC file and can be downloaded.
+
+ ![Raw Data](Assets/ExtracetedData.png)
 
 ## Installation
 
